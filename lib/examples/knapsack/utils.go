@@ -1,5 +1,14 @@
 package knapsack
 
+func min[T int | float64](val T, values ...T) T {
+	for _, y := range values {
+		if y < val {
+			val = y
+		}
+	}
+	return val
+}
+
 func sum[T int | float64](values ...T) T {
 	var result T = 0
 	for _, x := range values {

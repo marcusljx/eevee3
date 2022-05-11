@@ -1,16 +1,17 @@
 package eevee3
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 	"time"
 )
 
 var (
-	selectionRNG = rand.New(rand.NewSource(time.Now().Unix()))
+	rng = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
-type SubgroupSelectionStrategy[T any] = func(corpus []Solution[T], k int) []Solution[T]
+type SubgroupSelectionStrategy[T any] func(corpus []Solution[T], k int) []Solution[T]
 
 func SelectRandomSubgroup[T any](corpus []Solution[T], k int) (result []Solution[T]) {
 	if k > len(corpus) {
@@ -22,7 +23,7 @@ func SelectRandomSubgroup[T any](corpus []Solution[T], k int) (result []Solution
 	}
 
 	indices := orderedSlice(len(corpus))
-	selectionRNG.Shuffle(len(indices), func(i, j int) {
+	rng.Shuffle(len(indices), func(i, j int) {
 		indices[i], indices[j] = indices[j], indices[i]
 	})
 
@@ -34,7 +35,7 @@ func SelectRandomSubgroup[T any](corpus []Solution[T], k int) (result []Solution
 
 func SelectBestSubgroup[T any](corpus []Solution[T], k int) (result []Solution[T]) {
 	if k > len(corpus) {
-		panic("k cannot be larger than len(corpus)")
+		panic(fmt.Sprintf("k cannot be larger than len(corpus) [k=%d; len(corpus)=%d]\n", k, len(corpus)))
 	}
 
 	if k == len(corpus) {
@@ -52,7 +53,7 @@ func SelectBestSubgroup[T any](corpus []Solution[T], k int) (result []Solution[T
 	return
 }
 
-type PairwiseSelectionStrategy[T any] = func(corpus []Solution[T], k int) [][2]Solution[T]
+type PairwiseSelectionStrategy[T any] func(corpus []Solution[T], k int) [][2]Solution[T]
 
 // SelectRandomPairs returns a k-size slice of randomly picked
 // pairs of solutions
