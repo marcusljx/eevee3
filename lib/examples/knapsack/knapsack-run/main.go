@@ -24,7 +24,7 @@ func main() {
 		Items: items,
 	}
 
-	data := &eevee3.ExperimentData[knapsack.TUnderlying]{
+	data := &eevee3.Controller[knapsack.TUnderlying]{
 		GenerationCycles:                100,
 		PopulationSize:                  10,
 		MutationProbability:             0.05,

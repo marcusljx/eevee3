@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func RunSingle[T any](handler Handler[T], data *ExperimentData[T]) Solution[T] {
-	results := Run[T](handler, data)
+func RunSingle[T any](handler Handler[T], controller *Controller[T]) Solution[T] {
+	results := Run[T](handler, controller)
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Score() > results[j].Score()
 	})
@@ -16,12 +16,12 @@ func RunSingle[T any](handler Handler[T], data *ExperimentData[T]) Solution[T] {
 	return results[0]
 }
 
-func Run[T any](handler Handler[T], data *ExperimentData[T]) []Solution[T] {
-	pop := createPopulation(handler, data)
+func Run[T any](handler Handler[T], controller *Controller[T]) []Solution[T] {
+	pop := createPopulation(handler, controller)
 
-	for generation := 0; generation < data.GenerationCycles; generation++ {
+	for generation := 0; generation < controller.GenerationCycles; generation++ {
 		logPopulation(generation, pop)
-		iterate(pop, handler, data)
+		iterate(pop, handler, controller)
 	}
 	return pop
 }
@@ -34,7 +34,7 @@ func logPopulation[T any](generation int, pop []Solution[T]) {
 	log.Printf("[gen:%04d][%s]", generation, strings.Join(scores, ","))
 }
 
-func createPopulation[T any](handler Handler[T], data *ExperimentData[T]) []Solution[T] {
+func createPopulation[T any](handler Handler[T], data *Controller[T]) []Solution[T] {
 	result := make([]Solution[T], data.PopulationSize)
 	for i := 0; i < data.PopulationSize; i++ {
 		result[i] = handler.NewSolution()
@@ -42,7 +42,7 @@ func createPopulation[T any](handler Handler[T], data *ExperimentData[T]) []Solu
 	return result
 }
 
-func iterate[T any](pop []Solution[T], handler Handler[T], data *ExperimentData[T]) {
+func iterate[T any](pop []Solution[T], handler Handler[T], data *Controller[T]) {
 	var (
 		crossoverInChan         = make(chan [2]Solution[T])
 		crossoverToMutationChan = make(chan Solution[T])

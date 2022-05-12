@@ -1,5 +1,14 @@
 package eevee3
 
+import (
+	"math/rand"
+	"time"
+)
+
+var (
+	rng = rand.New(rand.NewSource(time.Now().Unix()))
+)
+
 // orderedSlice returns a slice of
 // incrementing values (starting from 0)
 func orderedSlice(n int) []int {

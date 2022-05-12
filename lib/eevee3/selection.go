@@ -2,13 +2,7 @@ package eevee3
 
 import (
 	"math"
-	"math/rand"
 	"sort"
-	"time"
-)
-
-var (
-	rng = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
 type SubgroupSelectionStrategy[T any] func(corpus []Solution[T]) []Solution[T]
@@ -16,13 +10,6 @@ type SubgroupSelectionStrategy[T any] func(corpus []Solution[T]) []Solution[T]
 func SelectRandomSubgroup[T any]() SubgroupSelectionStrategy[T] {
 	return func(corpus []Solution[T]) (result []Solution[T]) {
 		n := len(corpus)
-		//if k > len(corpus) {
-		//	panic("k cannot be larger than len(corpus)")
-		//}
-		//
-		//if k == len(corpus) {
-		//	return corpus
-		//}
 
 		indices := orderedSlice(len(corpus))
 		rng.Shuffle(len(indices), func(i, j int) {
@@ -39,13 +26,6 @@ func SelectRandomSubgroup[T any]() SubgroupSelectionStrategy[T] {
 func SelectBestSubgroup[T any]() SubgroupSelectionStrategy[T] {
 	return func(corpus []Solution[T]) (result []Solution[T]) {
 		n := len(corpus)
-		//if k > len(corpus) {
-		//	panic(fmt.Sprintf("k cannot be larger than len(corpus) [k=%d; len(corpus)=%d]\n", k, len(corpus)))
-		//}
-		//
-		//if k == len(corpus) {
-		//	return corpus
-		//}
 
 		indices := orderedSlice(len(corpus))
 		sort.Slice(indices, func(i, j int) bool {
@@ -66,13 +46,6 @@ func SelectBestAndWorstSubgroup[T any](bestRatio float64) SubgroupSelectionStrat
 			kBest  = int(math.Floor(bestRatio * float64(n)))
 			kWorst = n - kBest
 		)
-		//if kBest+kWorst > len(corpus) {
-		//	panic(fmt.Sprintf("total k cannot be larger than len(corpus) [kBest+kWorst=%d; len(corpus)=%d]\n", kBest+kWorst, len(corpus)))
-		//}
-		//
-		//if kBest+kWorst == len(corpus) {
-		//	return corpus
-		//}
 
 		indices := orderedSlice(len(corpus))
 		sort.Slice(indices, func(i, j int) bool {
