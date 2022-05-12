@@ -2,9 +2,9 @@ package eevee3
 
 // ExperimentData represents inner structure data about the experiment
 type ExperimentData[T any] struct {
-	// Generations is the number of generation cycles
+	// GenerationCycles is the number of generation cycles
 	// to run the experiment for
-	Generations int
+	GenerationCycles int
 
 	// PopulationSize represents the number of solutions
 	// in each generation corpus

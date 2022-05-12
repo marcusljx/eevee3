@@ -1,7 +1,7 @@
 package eevee3
 
 import (
-	"fmt"
+	"math"
 	"math/rand"
 	"sort"
 	"time"
@@ -11,75 +11,122 @@ var (
 	rng = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
-type SubgroupSelectionStrategy[T any] func(corpus []Solution[T], k int) []Solution[T]
+type SubgroupSelectionStrategy[T any] func(corpus []Solution[T]) []Solution[T]
 
-func SelectRandomSubgroup[T any](corpus []Solution[T], k int) (result []Solution[T]) {
-	if k > len(corpus) {
-		panic("k cannot be larger than len(corpus)")
+func SelectRandomSubgroup[T any]() SubgroupSelectionStrategy[T] {
+	return func(corpus []Solution[T]) (result []Solution[T]) {
+		n := len(corpus)
+		//if k > len(corpus) {
+		//	panic("k cannot be larger than len(corpus)")
+		//}
+		//
+		//if k == len(corpus) {
+		//	return corpus
+		//}
+
+		indices := orderedSlice(len(corpus))
+		rng.Shuffle(len(indices), func(i, j int) {
+			indices[i], indices[j] = indices[j], indices[i]
+		})
+
+		for _, idx := range indices[:n] {
+			result = append(result, corpus[idx])
+		}
+		return
 	}
-
-	if k == len(corpus) {
-		return corpus
-	}
-
-	indices := orderedSlice(len(corpus))
-	rng.Shuffle(len(indices), func(i, j int) {
-		indices[i], indices[j] = indices[j], indices[i]
-	})
-
-	for _, idx := range indices[:k] {
-		result = append(result, corpus[idx])
-	}
-	return
 }
 
-func SelectBestSubgroup[T any](corpus []Solution[T], k int) (result []Solution[T]) {
-	if k > len(corpus) {
-		panic(fmt.Sprintf("k cannot be larger than len(corpus) [k=%d; len(corpus)=%d]\n", k, len(corpus)))
-	}
+func SelectBestSubgroup[T any]() SubgroupSelectionStrategy[T] {
+	return func(corpus []Solution[T]) (result []Solution[T]) {
+		n := len(corpus)
+		//if k > len(corpus) {
+		//	panic(fmt.Sprintf("k cannot be larger than len(corpus) [k=%d; len(corpus)=%d]\n", k, len(corpus)))
+		//}
+		//
+		//if k == len(corpus) {
+		//	return corpus
+		//}
 
-	if k == len(corpus) {
-		return corpus
-	}
+		indices := orderedSlice(len(corpus))
+		sort.Slice(indices, func(i, j int) bool {
+			return corpus[indices[i]].Score() > corpus[indices[j]].Score()
+		})
 
-	indices := orderedSlice(len(corpus))
-	sort.Slice(indices, func(i, j int) bool {
-		return corpus[indices[i]].Score() > corpus[indices[j]].Score()
-	})
-
-	for _, idx := range indices[:k] {
-		result = append(result, corpus[idx])
+		for _, idx := range indices[:n] {
+			result = append(result, corpus[idx])
+		}
+		return
 	}
-	return
 }
 
-type PairwiseSelectionStrategy[T any] func(corpus []Solution[T], k int) [][2]Solution[T]
+func SelectBestAndWorstSubgroup[T any](bestRatio float64) SubgroupSelectionStrategy[T] {
+	return func(corpus []Solution[T]) (result []Solution[T]) {
+		var (
+			n      = len(corpus)
+			kBest  = int(math.Floor(bestRatio * float64(n)))
+			kWorst = n - kBest
+		)
+		//if kBest+kWorst > len(corpus) {
+		//	panic(fmt.Sprintf("total k cannot be larger than len(corpus) [kBest+kWorst=%d; len(corpus)=%d]\n", kBest+kWorst, len(corpus)))
+		//}
+		//
+		//if kBest+kWorst == len(corpus) {
+		//	return corpus
+		//}
+
+		indices := orderedSlice(len(corpus))
+		sort.Slice(indices, func(i, j int) bool {
+			return corpus[indices[i]].Score() > corpus[indices[j]].Score()
+		})
+
+		for _, idx := range indices[:kBest] {
+			result = append(result, corpus[idx])
+		}
+		for _, idx := range indices[len(indices)-kWorst:] {
+			result = append(result, corpus[idx])
+		}
+
+		return
+	}
+}
+
+type PairwiseSelectionStrategy[T any] func(corpus []Solution[T]) [][2]Solution[T]
 
 // SelectRandomPairs returns a k-size slice of randomly picked
 // pairs of solutions
-func SelectRandomPairs[T any](corpus []Solution[T], k int) [][2]Solution[T] {
-	tmp := SelectRandomSubgroup(corpus, 2*k)
-	result := make([][2]Solution[T], k)
-	for i := 0; i < len(tmp); i += 2 {
-		result[i/2] = [2]Solution[T]{
-			tmp[i],
-			tmp[i+1],
+func SelectRandomPairs[T any]() PairwiseSelectionStrategy[T] {
+	return func(corpus []Solution[T]) [][2]Solution[T] {
+		var (
+			n      = len(corpus)
+			tmp    = SelectRandomSubgroup[T]()(corpus)
+			result = make([][2]Solution[T], n/2)
+		)
+		for i := 0; i < len(tmp); i += 2 {
+			result[i/2] = [2]Solution[T]{
+				tmp[i],
+				tmp[i+1],
+			}
 		}
+		return result
 	}
-	return result
 }
 
 // SelectBestPairs returns a k-size slice of pairs of solutions
 // whose scores are elitist, ie. Best and 2nd-best are paired,
 // 3rd-best and 4th-best are paired.
-func SelectBestPairs[T any](corpus []Solution[T], k int) [][2]Solution[T] {
-	tmp := SelectBestSubgroup(corpus, 2*k)
-	result := make([][2]Solution[T], k)
-	for i := 0; i < len(tmp); i += 2 {
-		result[i/2] = [2]Solution[T]{
-			tmp[i],
-			tmp[i+1],
+func SelectBestPairs[T any]() PairwiseSelectionStrategy[T] {
+	return func(corpus []Solution[T]) [][2]Solution[T] {
+		var (
+			n      = len(corpus)
+			tmp    = SelectBestSubgroup[T]()(corpus)
+			result = make([][2]Solution[T], n/2)
+		)
+		for i := 0; i < len(tmp); i += 2 {
+			result[i/2] = [2]Solution[T]{
+				tmp[i],
+				tmp[i+1],
+			}
 		}
+		return result
 	}
-	return result
 }

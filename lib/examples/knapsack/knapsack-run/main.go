@@ -25,17 +25,14 @@ func main() {
 	}
 
 	data := &eevee3.ExperimentData[knapsack.TUnderlying]{
-		Generations:                     100,
+		GenerationCycles:                100,
 		PopulationSize:                  10,
 		MutationProbability:             0.05,
-		CrossoverSelectionStrategy:      eevee3.SelectRandomPairs[knapsack.TUnderlying],
-		CrossoverProbability:            0,
-		NextGenerationSelectionStrategy: eevee3.SelectBestSubgroup[knapsack.TUnderlying],
+		CrossoverSelectionStrategy:      eevee3.SelectRandomPairs[knapsack.TUnderlying](),
+		CrossoverProbability:            1,
+		NextGenerationSelectionStrategy: eevee3.SelectBestAndWorstSubgroup[knapsack.TUnderlying](0.8),
 	}
 
-	result := eevee3.Run[knapsack.TUnderlying](knapsackHandler, data)
-
-	for _, sol := range result {
-		fmt.Printf("(%0.4f)%s\n", sol.Score(), sol)
-	}
+	result := eevee3.RunSingle[knapsack.TUnderlying](knapsackHandler, data)
+	fmt.Print(result.Describe())
 }

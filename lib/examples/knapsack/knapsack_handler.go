@@ -1,0 +1,67 @@
+package knapsack
+
+import (
+	"github.com/marcusljx/eevee3/lib/eevee3"
+	"math/rand"
+	"time"
+)
+
+var rng = rand.New(rand.NewSource(time.Now().Unix()))
+
+// Item defines a single knapsack item
+type Item struct {
+	Name          string
+	WeightInGrams int
+	Value         float64
+}
+
+// Handler is the type that handles operations for the knapsack experiment.
+// It also stores custom const data that is specific to the knapsack experiment.
+type Handler struct {
+	Rand *rand.Rand
+
+	// itemUniverse represents all possible items
+	// that can be put into the knapsack
+	Items []Item
+}
+
+func (h *Handler) Cross(solution1, solution2 eevee3.Solution[TUnderlying]) (eevee3.Solution[TUnderlying], eevee3.Solution[TUnderlying]) {
+	var (
+		items1      = solution1.Value()
+		items2      = solution2.Value()
+		maxSplitIdx = min[int](len(items1), len(items2))
+	)
+	if maxSplitIdx == 0 {
+		return solution1, solution2
+	}
+
+	splitIdx := rng.Int() % maxSplitIdx
+	for i := 0; i < splitIdx; i++ {
+		items1[i], items2[i] = items2[i], items1[i]
+	}
+	return h.newSolution(items1), h.newSolution(items2)
+}
+
+func (h *Handler) Mutate(solution eevee3.Solution[TUnderlying]) eevee3.Solution[TUnderlying] {
+	var (
+		roster    = solution.Value()
+		targetIdx = rng.Int() % len(roster)
+	)
+	roster[targetIdx] = !roster[targetIdx]
+	return h.newSolution(roster)
+}
+
+func (h *Handler) NewSolution() eevee3.Solution[TUnderlying] {
+	roster := make([]bool, len(h.Items))
+	for i := range roster {
+		roster[i] = rng.Float64() < 0.5
+	}
+	return h.newSolution(roster)
+}
+
+func (h *Handler) newSolution(roster []bool) *Solution {
+	return &Solution{
+		handler: h,
+		roster:  roster,
+	}
+}

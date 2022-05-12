@@ -17,10 +17,10 @@ func sum[T int | float64](values ...T) T {
 	return result
 }
 
-func sliceMap[T any, U any](slice []T, mapFunc func(T) U) []U {
+func sliceMap[T any, U any](slice []T, mapFunc func(int, T) U) []U {
 	result := make([]U, len(slice))
 	for i, x := range slice {
-		result[i] = mapFunc(x)
+		result[i] = mapFunc(i, x)
 	}
 	return result
 }

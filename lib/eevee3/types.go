@@ -10,5 +10,6 @@ type Solution[T any] interface {
 	Scoreable
 	fmt.Stringer
 
-	OriginalValue() T
+	Value() T
+	Describe() string
 }
