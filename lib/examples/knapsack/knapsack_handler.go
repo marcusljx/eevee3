@@ -27,18 +27,10 @@ type Handler struct {
 
 func (h *Handler) Cross(solution1, solution2 eevee3.Solution[TUnderlying]) (eevee3.Solution[TUnderlying], eevee3.Solution[TUnderlying]) {
 	var (
-		items1      = solution1.Value()
-		items2      = solution2.Value()
-		maxSplitIdx = min[int](len(items1), len(items2))
+		items1 = solution1.Value()
+		items2 = solution2.Value()
 	)
-	if maxSplitIdx == 0 {
-		return solution1, solution2
-	}
-
-	splitIdx := rng.Int() % maxSplitIdx
-	for i := 0; i < splitIdx; i++ {
-		items1[i], items2[i] = items2[i], items1[i]
-	}
+	eevee3.CrossoverSliceByRandomPoint(items1, items2)
 	return h.newSolution(items1), h.newSolution(items2)
 }
 

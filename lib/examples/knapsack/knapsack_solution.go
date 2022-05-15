@@ -11,8 +11,8 @@ const WEIGHT_LIMIT = 1000
 // a single solution in the experiment corpus
 type TUnderlying = []bool
 
-// Solution is just a type alias to make the Handler's code cleaner,
-// you can have the type alias inline if you want
+// Solution represents a single possible
+// solution instance for the experiment
 type Solution struct {
 	handler *Handler
 	roster  []bool

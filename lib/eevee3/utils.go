@@ -18,3 +18,12 @@ func orderedSlice(n int) []int {
 	}
 	return result
 }
+
+func min[T int | float64](val T, values ...T) T {
+	for _, y := range values {
+		if y < val {
+			val = y
+		}
+	}
+	return val
+}
