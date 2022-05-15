@@ -35,12 +35,9 @@ func (h *Handler) Cross(solution1, solution2 eevee3.Solution[TUnderlying]) (eeve
 }
 
 func (h *Handler) Mutate(solution eevee3.Solution[TUnderlying]) eevee3.Solution[TUnderlying] {
-	var (
-		roster    = solution.Value()
-		targetIdx = rng.Int() % len(roster)
-	)
-	roster[targetIdx] = !roster[targetIdx]
-	return h.newSolution(roster)
+	rosterCopy := solution.Value()
+	eevee3.MutateRandomIndex(rosterCopy, func(b bool) bool { return !b })
+	return h.newSolution(rosterCopy)
 }
 
 func (h *Handler) NewSolution() eevee3.Solution[TUnderlying] {
