@@ -17,3 +17,7 @@ type Solution[T any] interface {
 	// This may be information to be presented at the end of a run, etc.
 	Describe() string
 }
+
+type SolutionPredicate[T any] func(solution Solution[T]) (PredicateReason, bool)
+
+type PopulationPredicate[T any] func([]Solution[T]) (PredicateReason, bool)

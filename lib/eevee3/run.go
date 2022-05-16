@@ -7,23 +7,53 @@ import (
 	"strings"
 )
 
-func RunSingle[T any](handler Handler[T], controller *Controller[T]) Solution[T] {
-	results := Run[T](handler, controller)
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Score() > results[j].Score()
-	})
+const (
+	defaultTerminationReason = "reached specified max generations"
+)
 
-	return results[0]
+// RunN is similar to Run, but only returns the top (by score)
+// n solutions in the final population corpus
+func RunN[T any](handler Handler[T], controller *Controller[T], n int) *Result[T] {
+	result := Run[T](handler, controller)
+	sort.Slice(result.Population, func(i, j int) bool {
+		return result.Population[i].Score() > result.Population[j].Score()
+	})
+	result.Population = result.Population[:n]
+
+	return result
 }
 
-func Run[T any](handler Handler[T], controller *Controller[T]) []Solution[T] {
-	pop := createPopulation(handler, controller)
+// RunSingle is a helper for RunN(handler, controller, 1)
+func RunSingle[T any](handler Handler[T], controller *Controller[T]) *Result[T] {
+	return RunN(handler, controller, 1)
+}
 
-	for generation := 0; generation < controller.GenerationCycles; generation++ {
-		logPopulation(generation, pop)
+func Run[T any](handler Handler[T], controller *Controller[T]) *Result[T] {
+	var (
+		pop        = createPopulation(handler, controller)
+		generation = 0
+	)
+	logPopulation(generation, pop)
+	for ; generation <= controller.GenerationCycles; generation++ {
 		iterate(pop, handler, controller)
+		logPopulation(generation, pop)
+
+		// evaluate termination conditions
+		for _, cond := range controller.TerminationConditions {
+			if reason, stop := cond(pop); stop {
+				return &Result[T]{
+					Population:             pop,
+					TerminatedAtGeneration: generation,
+					TerminationReason:      string(reason),
+				}
+			}
+		}
 	}
-	return pop
+	return &Result[T]{
+		Population:             pop,
+		TerminatedAtGeneration: generation,
+		TerminationReason:      defaultTerminationReason,
+	}
 }
 
 func logPopulation[T any](generation int, pop []Solution[T]) {

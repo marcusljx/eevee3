@@ -31,6 +31,9 @@ func main() {
 		CrossoverSelectionStrategy:      eevee3.SelectRandomPairs[knapsack.TUnderlying](),
 		CrossoverProbability:            1,
 		NextGenerationSelectionStrategy: eevee3.SelectBestAndWorstSubgroup[knapsack.TUnderlying](0.8),
+		TerminationConditions: []eevee3.PopulationPredicate[knapsack.TUnderlying]{
+			eevee3.TrueWhenAllScoresSame[knapsack.TUnderlying](),
+		},
 	}
 
 	result := eevee3.RunSingle[knapsack.TUnderlying](knapsackHandler, data)

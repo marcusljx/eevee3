@@ -2,6 +2,7 @@ package knapsack
 
 import (
 	"fmt"
+	"golang.org/x/exp/slices"
 	"strings"
 )
 
@@ -35,9 +36,7 @@ func (s *Solution) String() string {
 }
 
 func (s *Solution) Value() TUnderlying {
-	clone := make([]bool, len(s.roster))
-	copy(clone, s.roster)
-	return clone
+	return slices.Clone(s.roster)
 }
 
 // Score for knapsack is the value-per-gram
