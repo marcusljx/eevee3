@@ -2,6 +2,7 @@ package knapsack
 
 import (
 	"fmt"
+	"github.com/marcusljx/eevee3/lib/eevee3"
 	"golang.org/x/exp/slices"
 	"strings"
 )
@@ -37,6 +38,10 @@ func (s *Solution) String() string {
 
 func (s *Solution) Value() TUnderlying {
 	return slices.Clone(s.roster)
+}
+
+func (s *Solution) Equals(s2 eevee3.Solution[TUnderlying]) bool {
+	return slices.Equal[bool](s.roster, s2.Value())
 }
 
 // Score for knapsack is the value-per-gram

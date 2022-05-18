@@ -13,11 +13,11 @@ type Solution[T any] interface {
 	// Value returns the underlying value backing the solution
 	Value() T
 
+	// Equals returns true if the solution is
+	// identical to the given other solution
+	Equals(Solution[T]) bool
+
 	// Describe returns textual information describing the solution.
 	// This may be information to be presented at the end of a run, etc.
 	Describe() string
 }
-
-type SolutionPredicate[T any] func(solution Solution[T]) (PredicateReason, bool)
-
-type PopulationPredicate[T any] func([]Solution[T]) (PredicateReason, bool)

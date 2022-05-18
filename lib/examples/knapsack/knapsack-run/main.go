@@ -32,7 +32,7 @@ func main() {
 		CrossoverProbability:            1,
 		NextGenerationSelectionStrategy: eevee3.SelectBestAndWorstSubgroup[knapsack.TUnderlying](0.8),
 		TerminationConditions: []eevee3.PopulationPredicate[knapsack.TUnderlying]{
-			eevee3.TrueWhenAllScoresSame[knapsack.TUnderlying](),
+			eevee3.TrueWhenAllSolutionsEqual[knapsack.TUnderlying](),
 		},
 	}
 
