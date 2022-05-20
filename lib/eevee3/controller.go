@@ -12,7 +12,7 @@ type Controller[T any] struct {
 	PopulationSize int
 
 	// MutationProbability is the probability that
-	// each solution has to mutate on each generation cycle
+	// each solutions has to mutate on each generation cycle
 	MutationProbability float64
 
 	// CrossoverProbability is the probability that

@@ -3,45 +3,25 @@ package knapsack
 import (
 	"fmt"
 	"github.com/marcusljx/eevee3/lib/eevee3"
-	"golang.org/x/exp/slices"
 	"strings"
 )
 
 const WEIGHT_LIMIT = 1000
 
 // TUnderlying is the underlying type generic of
-// a single solution in the experiment corpus
+// a single solutions in the experiment corpus
 type TUnderlying = []bool
 
 // Solution represents a single possible
-// solution instance for the experiment
+// solutions instance for the experiment
 type Solution struct {
+	eevee3.ConsistentSizeSliceSolution[bool]
+
 	handler *Handler
-	roster  []bool
 }
 
 func (s *Solution) getItemAt(i int) Item {
 	return s.handler.Items[i]
-}
-
-func (s *Solution) String() string {
-	buf := sliceMap[bool, byte](s.roster, func(_ int, b bool) byte {
-		if b {
-			return '1'
-		} else {
-			return '0'
-		}
-	})
-
-	return string(buf)
-}
-
-func (s *Solution) Value() TUnderlying {
-	return slices.Clone(s.roster)
-}
-
-func (s *Solution) Equals(s2 eevee3.Solution[TUnderlying]) bool {
-	return slices.Equal[bool](s.roster, s2.Value())
 }
 
 // Score for knapsack is the value-per-gram
@@ -50,7 +30,7 @@ func (s *Solution) Score() float64 {
 		weightTotal int
 		valueTotal  float64
 	)
-	for i, b := range s.roster {
+	for i, b := range s.Slice {
 		if !b {
 			continue
 		}
@@ -68,7 +48,8 @@ func (s *Solution) Score() float64 {
 
 func (s *Solution) Describe() string {
 	var str strings.Builder
-	for i, b := range s.roster {
+	str.WriteString(fmt.Sprintf("Stringf: %s\n", s.String()))
+	for i, b := range s.Slice {
 		if b {
 			item := s.getItemAt(i)
 			str.WriteString(fmt.Sprintf("- include item %s (weight: %d, value %+0.3f)\n", item.Name, item.WeightInGrams, item.Value))

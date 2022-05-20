@@ -50,7 +50,7 @@ func (h *Handler) NewSolution() eevee3.Solution[TUnderlying] {
 
 func (h *Handler) newSolution(roster []bool) *Solution {
 	return &Solution{
-		handler: h,
-		roster:  roster,
+		handler:                     h,
+		ConsistentSizeSliceSolution: *eevee3.NewConsistentSizeSliceSolution[bool](roster),
 	}
 }
