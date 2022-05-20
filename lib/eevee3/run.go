@@ -31,9 +31,10 @@ func RunSingle[T any](handler Handler[T], controller *Controller[T]) *Result[T] 
 func Run[T any](handler Handler[T], controller *Controller[T]) *Result[T] {
 	var (
 		pop        = createPopulation(handler, controller)
-		generation = 0
+		generation = 1
 	)
-	logPopulation(generation, pop)
+
+	logPopulation(0, pop)
 	for ; generation <= controller.GenerationCycles; generation++ {
 		iterate(pop, handler, controller)
 		logPopulation(generation, pop)
