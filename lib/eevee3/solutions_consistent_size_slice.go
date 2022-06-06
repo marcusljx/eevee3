@@ -15,6 +15,12 @@ type ConsistentSizeSliceSolution[E comparable] struct {
 	Slice []E
 }
 
+func (c *ConsistentSizeSliceSolution[E]) Clone() Solution[[]E] {
+	return &ConsistentSizeSliceSolution[E]{
+		Slice: slices.Clone(c.Slice),
+	}
+}
+
 func (c *ConsistentSizeSliceSolution[E]) String() string {
 	return fmt.Sprintf("%v", c.Slice)
 }

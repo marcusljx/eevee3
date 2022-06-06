@@ -31,13 +31,13 @@ func (h *Handler) Cross(solution1, solution2 eevee3.Solution[TUnderlying]) (eeve
 		items2 = solution2.Value()
 	)
 	eevee3.CrossoverSliceByRandomPoint(items1, items2)
-	return h.newSolution(items1), h.newSolution(items2)
+	return h.NewSolutionFrom(items1), h.NewSolutionFrom(items2)
 }
 
 func (h *Handler) Mutate(solution eevee3.Solution[TUnderlying]) eevee3.Solution[TUnderlying] {
 	rosterCopy := solution.Value()
 	eevee3.MutateRandomIndex(rosterCopy, func(b bool) bool { return !b })
-	return h.newSolution(rosterCopy)
+	return h.NewSolutionFrom(rosterCopy)
 }
 
 func (h *Handler) NewSolution() eevee3.Solution[TUnderlying] {
@@ -45,10 +45,10 @@ func (h *Handler) NewSolution() eevee3.Solution[TUnderlying] {
 	for i := range roster {
 		roster[i] = rng.Float64() < 0.5
 	}
-	return h.newSolution(roster)
+	return h.NewSolutionFrom(roster)
 }
 
-func (h *Handler) newSolution(roster []bool) *Solution {
+func (h *Handler) NewSolutionFrom(roster TUnderlying) eevee3.Solution[TUnderlying] {
 	return &Solution{
 		handler:                     h,
 		ConsistentSizeSliceSolution: *eevee3.NewConsistentSizeSliceSolution[bool](roster),

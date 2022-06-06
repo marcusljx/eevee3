@@ -17,4 +17,5 @@ type Handler[TUnderlying any] interface {
 
 	// NewSolution returns a single solutions instance
 	NewSolution() Solution[TUnderlying]
+	NewSolutionFrom(innerValue TUnderlying) Solution[TUnderlying]
 }
