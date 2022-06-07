@@ -5,6 +5,7 @@ import (
 	"log"
 	"sort"
 	"strings"
+	"sync"
 )
 
 const (
@@ -40,16 +41,28 @@ func Run[T any](handler Handler[T], controller *Controller[T]) *Result[T] {
 		logPopulation(generation, pop)
 
 		// evaluate termination conditions
+		var (
+			wg             = new(sync.WaitGroup)
+			stopResultChan = make(chan *Result[T], 1)
+			continueChan   = make(chan struct{}, 1)
+		)
 		for _, cond := range controller.TerminationConditions {
-			if reason, stop := cond(pop); stop {
-				return &Result[T]{
-					Population:             pop,
-					TerminatedAtGeneration: generation,
-					TerminationReason:      string(reason),
-				}
-			}
+			wg.Add(1)
+			go doTerminationCheck(wg, stopResultChan, cond, pop, generation)
+		}
+		go func() {
+			wg.Wait()
+			continueChan <- struct{}{}
+		}()
+
+		select {
+		case result := <-stopResultChan:
+			return result
+		case <-continueChan:
+			continue
 		}
 	}
+
 	return &Result[T]{
 		Population:             pop,
 		TerminatedAtGeneration: generation,
@@ -132,4 +145,22 @@ func doMutation[T any](
 		out <- result
 	}
 	close(out)
+}
+
+func doTerminationCheck[T any](
+	waitGroup *sync.WaitGroup,
+	terminate chan<- *Result[T],
+	checkFunc PopulationPredicate[T],
+	population []Solution[T],
+	generation int,
+) {
+	if reason, stop := checkFunc(population); stop {
+		terminate <- &Result[T]{
+			Population:             population,
+			TerminatedAtGeneration: generation,
+			TerminationReason:      string(reason),
+		}
+	}
+
+	waitGroup.Done()
 }

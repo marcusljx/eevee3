@@ -10,6 +10,7 @@ const (
 	PredicateReasonPopulationWasEmpty                          = "population is empty"
 	PredicateReasonPopulationAllScoresSame                     = "all scores were equal"
 	PredicateReasonPopulationAllSolutionsEqual                 = "all solutions were equal"
+	PredicateReasonScoreWasHit                                 = "defined score threshold was hit"
 )
 
 // TrueWhenAllScoresSame returns a [PopulationPredicate] that
@@ -45,5 +46,29 @@ func TrueWhenAllSolutionsEqual[T any]() PopulationPredicate[T] {
 			}
 		}
 		return PredicateReasonPopulationAllSolutionsEqual, true
+	}
+}
+
+// TrueWhenAtLeastNScores returns a [PopulationPredicate] that
+// returns true when at least [n] solutions in the corpus
+// fulfill the [scoreThresholdFunc] (returns true) given.
+//
+// If n > len(population), the predicate will always return false.
+func TrueWhenAtLeastNScores[T any](n int, scoreThresholdFunc func(float64) bool) PopulationPredicate[T] {
+	return func(pop []Solution[T]) (PredicateReason, bool) {
+		if len(pop) < n {
+			return _predicateFalse, true
+		}
+
+		for _, sol := range pop {
+			if scoreThresholdFunc(sol.Score()) {
+				n--
+			}
+
+			if n <= 0 {
+				return PredicateReasonScoreWasHit, true
+			}
+		}
+		return _predicateFalse, false
 	}
 }

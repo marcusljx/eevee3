@@ -33,6 +33,9 @@ func main() {
 		NextGenerationSelectionStrategy: eevee3.SelectBestAndWorstSubgroup[bestfitline.TUnderlying](0.8),
 		TerminationConditions: []eevee3.PopulationPredicate[bestfitline.TUnderlying]{
 			eevee3.TrueWhenAllSolutionsEqual[bestfitline.TUnderlying](),
+			eevee3.TrueWhenAtLeastNScores[bestfitline.TUnderlying](1, func(f float64) bool {
+				return f >= 0
+			}),
 		},
 	}
 
