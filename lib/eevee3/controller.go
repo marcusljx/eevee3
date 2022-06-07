@@ -3,6 +3,8 @@ package eevee3
 // Controller represents inner structure data about the experiment,
 // as well as strategies for handling experiment execution.
 type Controller[T any] struct {
+	Recorder Recorder[T]
+
 	// GenerationCycles is the number of generation cycles
 	// to run the experiment for
 	GenerationCycles int

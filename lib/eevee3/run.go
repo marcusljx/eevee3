@@ -29,6 +29,8 @@ func RunSingle[T any](handler Handler[T], controller *Controller[T]) *Result[T] 
 	return RunN(handler, controller, 1)
 }
 
+// TODO: instrument Run() with recorder
+
 func Run[T any](handler Handler[T], controller *Controller[T]) *Result[T] {
 	var (
 		pop        = createPopulation(handler, controller)
