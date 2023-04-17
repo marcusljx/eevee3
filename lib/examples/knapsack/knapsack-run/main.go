@@ -26,7 +26,7 @@ func main() {
 
 	data := &eevee3.Controller[knapsack.TUnderlying]{
 		GenerationCycles:                100,
-		PopulationSize:                  10,
+		PopulationSize:                  30,
 		MutationProbability:             0.05,
 		CrossoverSelectionStrategy:      eevee3.SelectRandomPairs[knapsack.TUnderlying](),
 		CrossoverProbability:            1,

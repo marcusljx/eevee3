@@ -1,2 +1,2 @@
 # eevee3
-Fresh from the groun rebuild of eevee project, with generics
+Fresh ground-up rebuild of eevee project, with generics
